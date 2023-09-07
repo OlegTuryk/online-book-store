@@ -3,6 +3,7 @@ package com.app.onlinebookstore.repository.impl;
 import com.app.onlinebookstore.model.Book;
 import com.app.onlinebookstore.repository.BookRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,10 +18,8 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
-        Session session = null;
         Transaction transaction = null;
-        try {
-            session = sessionFactory.openSession();
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.persist(book);
             transaction.commit();
@@ -30,10 +29,6 @@ public class BookRepositoryImpl implements BookRepository {
                 transaction.rollback();
             }
             throw new DataAccessResourceFailureException("Can't insert book " + book, e);
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
@@ -43,6 +38,13 @@ public class BookRepositoryImpl implements BookRepository {
             return session.createQuery("FROM Book ", Book.class).getResultList();
         } catch (Exception e) {
             throw new DataAccessResourceFailureException("Can't get all books ", e);
+        }
+    }
+
+    @Override
+    public Optional<Book> getBookById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            return Optional.ofNullable(session.get(Book.class, id));
         }
     }
 }
