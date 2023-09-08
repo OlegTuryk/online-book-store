@@ -12,10 +12,12 @@ public class BookSpecifications {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (searchParameters.getTitle() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("title"), searchParameters.getTitle()));
+                predicates.add(criteriaBuilder
+                        .equal(root.get("title"), searchParameters.getTitle()));
             }
             if (searchParameters.getAuthor() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("author"), searchParameters.getAuthor()));
+                predicates.add(criteriaBuilder
+                        .equal(root.get("author"), searchParameters.getAuthor()));
             }
             if (searchParameters.getIsbn() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("isbn"), searchParameters.getIsbn()));
