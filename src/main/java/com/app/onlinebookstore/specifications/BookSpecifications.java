@@ -9,26 +9,26 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class BookSpecifications {
     public static Specification<Book> searchBooks(BookSearchParametersDto searchParameters) {
-        return (root, query, cb) -> {
+        return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (searchParameters.getTitle() != null) {
-                predicates.add(cb.equal(root.get("title"), searchParameters.getTitle()));
+                predicates.add(criteriaBuilder.equal(root.get("title"), searchParameters.getTitle()));
             }
             if (searchParameters.getAuthor() != null) {
-                predicates.add(cb.equal(root.get("author"), searchParameters.getAuthor()));
+                predicates.add(criteriaBuilder.equal(root.get("author"), searchParameters.getAuthor()));
             }
             if (searchParameters.getIsbn() != null) {
-                predicates.add(cb.equal(root.get("isbn"), searchParameters.getIsbn()));
+                predicates.add(criteriaBuilder.equal(root.get("isbn"), searchParameters.getIsbn()));
             }
             if (searchParameters.getMinPrice() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
                         root.get("price"), searchParameters.getMinPrice()));
             }
             if (searchParameters.getMaxPrice() != null) {
-                predicates.add(cb.lessThanOrEqualTo(
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get("price"), searchParameters.getMaxPrice()));
             }
-            return cb.and(predicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 }
