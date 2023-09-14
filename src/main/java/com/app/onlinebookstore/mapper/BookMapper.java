@@ -16,9 +16,11 @@ import org.mapstruct.Named;
 
 @Mapper(config = MapperConfig.class)
 public interface BookMapper {
+
     BookDto toDto(Book book);
 
     @Mapping(target = "categories", source = "categoryIds")
+    @Mapping(target = "id", ignore = true)
     Book toModel(CreateBookRequestDto bookDto);
 
     BookDtoWithoutCategoryIds toDtoWithoutCategories(Book book);

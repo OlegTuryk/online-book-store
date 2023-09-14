@@ -13,23 +13,15 @@ import com.app.onlinebookstore.repository.ShoppingCartRepository;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(config = MapperConfig.class)
 public interface CartItemMapper {
 
+    @Mapping(target = "bookId", source = "cartItem.book.id")
+    @Mapping(target = "bookTitle", source = "cartItem.book.title")
     CartItemDto toDto(CartItem cartItem);
 
-    CartItem toEntity(CreateCartItemDto createCartItemDto);
-
-    CartItem updateFromDto(UpdateCartItemDto updateCartItemDto, @MappingTarget CartItem cartItem);
-
-    @AfterMapping
-    default void setBookData(@MappingTarget CartItemDto cartItemDto, CartItem cartItem) {
-        if (cartItem.getBook() != null) {
-            cartItemDto.setBookId(cartItem.getBook().getId());
-            cartItemDto.setBookTitle(cartItem.getBook().getTitle());
-        }
-    }
 }

@@ -21,7 +21,7 @@ public class ShoppingCart {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "shoppingCart")
     private Set<CartItem> cartItems = new HashSet<>();
     @Column(nullable = false)
     private boolean isDeleted = false;

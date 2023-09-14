@@ -14,6 +14,7 @@ import com.app.onlinebookstore.repository.CartItemRepository;
 import com.app.onlinebookstore.repository.ShoppingCartRepository;
 import com.app.onlinebookstore.service.ShoppingCartService;
 import com.app.onlinebookstore.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,29 +35,30 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @Transactional
     public CartItemDto save(CreateCartItemDto createCartItemDto) {
-        CartItem cartItem = cartItemMapper.toEntity(createCartItemDto);
-        setCartItem(cartItem, createCartItemDto, userService.getUser().getId());
-        return cartItemMapper.toDto(cartItemRepository
-                .save(cartItem));
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(userService.getUser().getId())
+                .orElseGet(this::createShoppingCart);
+        CartItem cartItem = shoppingCart.getCartItems().stream()
+                .filter(item -> createCartItemDto.getBookId().equals(item.getBook().getId()))
+                .peek(item -> item.setQuantity(item.getQuantity() + createCartItemDto.getQuantity()))
+                .findFirst()
+                .orElse(createCartItem(shoppingCart, createCartItemDto));
+        return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
-    private void setCartItem(CartItem cartItem, CreateCartItemDto createCartItemDto, Long userId) {
-        if (createCartItemDto.getBookId() != null) {
-            Book book = bookRepository.findById(createCartItemDto.getBookId()).orElseThrow(() -> new EntityNotFoundException("Book not found"));
-            cartItem.setBook(book);
-        }
-        if (userId != null) {
-            ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(userId)
-                    .orElseGet(this::createShoppingCart);
-            cartItem.setShoppingCart(shoppingCart);
-            shoppingCartRepository.save(shoppingCart);
-        }
+    private CartItem createCartItem(ShoppingCart shoppingCart, CreateCartItemDto createCartItemDto) {
+        Book book = bookRepository.findById(createCartItemDto.getBookId()).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        CartItem cartItem = new CartItem();
+        cartItem.setShoppingCart(shoppingCart);
+        cartItem.setBook(book);
+        cartItem.setQuantity(createCartItemDto.getQuantity());
+        return cartItem;
     }
 
     private ShoppingCart createShoppingCart() {
         ShoppingCart newShoppingCart = new ShoppingCart();
         newShoppingCart.setUser(userService.getUser());
-        return newShoppingCart;
+        return shoppingCartRepository.save(newShoppingCart);
     }
 }

@@ -17,11 +17,17 @@ databaseChangeLog:
                   name: shopping_cart_id
                   type: bigint
                   constraints:
+                    foreignKeyName: fk_shopping_cart_items
+                    referencedTableName: shopping_carts
+                    referencedColumnNames: id
                     nullable: false
               - column:
                   name: book_id
                   type: bigint
                   constraints:
+                    foreignKeyName: fk_books_cart_items
+                    referencedTableName: books
+                    referencedColumnNames: id
                     nullable: false
               - column:
                   name: quantity
