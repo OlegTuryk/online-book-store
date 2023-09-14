@@ -17,7 +17,7 @@ databaseChangeLog:
                   value: Turyk
               - column:
                   name: password
-                  value: $2a$12$YidPrKXOD3Bb6wcgh8WcNeXX8D4MLhR.bPZ0/0scXIoBQMTrLZRmi
+                  value: $2a$10$aEmd4nkwSICIHE3pmNkH8.samIMgUFbpwFVXyC3050U58XMn3083a
               - column:
                   name: is_deleted
                   valueBoolean: false
