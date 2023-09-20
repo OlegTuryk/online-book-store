@@ -1,6 +1,6 @@
 package com.app.onlinebookstore.specifications;
 
-import com.app.onlinebookstore.dto.BookSearchParametersDto;
+import com.app.onlinebookstore.dto.book.BookSearchParametersDto;
 import com.app.onlinebookstore.model.Book;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
