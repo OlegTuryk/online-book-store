@@ -32,3 +32,7 @@ databaseChangeLog:
             constraintName: fk_user_role_role_id_roles_id
             referencedTableName: roles
             referencedColumnNames: id
+        - addPrimaryKey:
+            columnNames: user_id, role_id
+            constraintName: pk_user_role
+            tableName: user_role
