@@ -2,12 +2,12 @@ package com.app.onlinebookstore.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 public record UserLoginRequestDto(@NotBlank
                                   @Email
                                   String email,
                                   @NotBlank
-                                  @Length(min = 8, max = 20)
+                                  @Size(min = 8, max = 20)
                                   String password) {
 }

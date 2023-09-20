@@ -1,14 +1,12 @@
 package com.app.onlinebookstore.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,26 +31,21 @@ public class JwtUtil {
 
     public boolean isValidToken(String token) {
         try {
-            Jws<Claims> claimsJws = Jwts.parserBuilder()
-                    .setSigningKey(secret)
-                    .build()
-                    .parseClaimsJws(token);
-            return !claimsJws.getBody().getExpiration().before(new Date());
+            return !getClaimsFromToken(token).getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtException("Expired or invalid Jwt token");
         }
     }
 
     public String getUsername(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        return getClaimsFromToken(token).getSubject();
     }
 
-    private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parserBuilder()
+    private Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(secret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claimsResolver.apply(claims);
     }
 }
