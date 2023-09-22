@@ -1,14 +1,12 @@
-package com.app.onlinebookstore.dto.shopping_cart;
+package com.app.onlinebookstore.dto.shoppingcart;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CreateCartItemDto {
+public class UpdateCartItemDto {
     @NotNull
-    private Long bookId;
-    @NotNull
-    @Min(1)
+    @Min(0)
     private Integer quantity;
 }

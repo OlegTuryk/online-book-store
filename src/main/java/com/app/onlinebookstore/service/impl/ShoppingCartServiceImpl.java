@@ -1,8 +1,9 @@
 package com.app.onlinebookstore.service.impl;
 
-import com.app.onlinebookstore.dto.shopping_cart.CartItemDto;
-import com.app.onlinebookstore.dto.shopping_cart.CreateCartItemDto;
-import com.app.onlinebookstore.dto.shopping_cart.ShoppingCartDto;
+import com.app.onlinebookstore.dto.shoppingcart.CartItemDto;
+import com.app.onlinebookstore.dto.shoppingcart.CreateCartItemDto;
+import com.app.onlinebookstore.dto.shoppingcart.ShoppingCartDto;
+import com.app.onlinebookstore.dto.shoppingcart.UpdateCartItemDto;
 import com.app.onlinebookstore.exception.EntityNotFoundException;
 import com.app.onlinebookstore.mapper.CartItemMapper;
 import com.app.onlinebookstore.mapper.ShoppingCartMapper;
@@ -30,28 +31,53 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto find() {
-        return shoppingCartMapper.toDto(shoppingCartRepository.findByUserId(userService.getUser().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Shopping cart not found")));
+        return shoppingCartMapper.toDto(shoppingCartRepository
+                .findByUserId(userService.getUser().getId())
+                .orElseGet(this::createShoppingCart));
     }
 
     @Override
     @Transactional
     public CartItemDto save(CreateCartItemDto createCartItemDto) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUserId(userService.getUser().getId())
+        ShoppingCart shoppingCart = shoppingCartRepository
+                .findByUserId(userService.getUser().getId())
                 .orElseGet(this::createShoppingCart);
         CartItem cartItem = shoppingCart.getCartItems().stream()
-                .filter(item -> createCartItemDto.getBookId().equals(item.getBook().getId()))
-                .peek(item -> item.setQuantity(item.getQuantity() + createCartItemDto.getQuantity()))
-                .findFirst()
-                .orElse(createCartItem(shoppingCart, createCartItemDto));
+                .filter(item -> item.getBook().getId().equals(createCartItemDto.getBookId()))
+                .peek(item -> item.setQuantity(createCartItemDto.getQuantity()))
+                .findFirst().orElseGet(() -> createCartItem(createCartItemDto));
         return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
-    private CartItem createCartItem(ShoppingCart shoppingCart, CreateCartItemDto createCartItemDto) {
-        Book book = bookRepository.findById(createCartItemDto.getBookId()).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+    @Transactional
+    @Override
+    public CartItemDto update(UpdateCartItemDto updateCartItemDto, Long id) {
+        CartItem cartItem = cartItemRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find CartItem by id: " + id
+                ));
+        cartItem.setQuantity(updateCartItemDto.getQuantity());
+        return cartItemMapper.toDto(cartItemRepository.save(cartItem));
+    }
+
+    @Override
+    public void deleteById(Long cartItemId) {
+        cartItemRepository.deleteById(cartItemId);
+    }
+
+    private CartItem createCartItem(CreateCartItemDto createCartItemDto) {
         CartItem cartItem = new CartItem();
-        cartItem.setShoppingCart(shoppingCart);
-        cartItem.setBook(book);
+        if (createCartItemDto.getBookId() != null) {
+            Book book = bookRepository.findById(createCartItemDto.getBookId())
+                    .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+            cartItem.setBook(book);
+        }
+        if (userService.getUser().getId() != null) {
+            ShoppingCart shoppingCart = shoppingCartRepository
+                    .findByUserId(userService.getUser().getId())
+                    .orElseGet(this::createShoppingCart);
+            cartItem.setShoppingCart(shoppingCart);
+        }
         cartItem.setQuantity(createCartItemDto.getQuantity());
         return cartItem;
     }
@@ -61,4 +87,5 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         newShoppingCart.setUser(userService.getUser());
         return shoppingCartRepository.save(newShoppingCart);
     }
+
 }
