@@ -5,10 +5,13 @@ import com.app.onlinebookstore.dto.category.CategoryDto;
 import com.app.onlinebookstore.dto.category.CreateCategoryRequestDto;
 import com.app.onlinebookstore.model.Category;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(config = MapperConfig.class)
 public interface CategoryMapper {
     CategoryDto toDto(Category category);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Category toEntity(CreateCategoryRequestDto categoryRequestDto);
 }
