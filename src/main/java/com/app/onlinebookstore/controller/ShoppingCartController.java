@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "ShoppingCart management", description = "Endpoints for managing shoppingCarts and cartItems")
+@Tag(name = "ShoppingCart management",
+        description = "Endpoints for managing shoppingCarts and cartItems")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/cart")
@@ -38,14 +39,16 @@ public class ShoppingCartController {
         return shoppingCartService.save(cartItem);
     }
 
-    @Operation(summary = "Update Cart Item", description = "Update an existing item in the shopping cart")
+    @Operation(summary = "Update Cart Item",
+            description = "Update an existing item in the shopping cart")
     @PutMapping("/cart-items/{cartItemId}")
     public CartItemDto updateCartItem(@PathVariable Long cartItemId,
                               @RequestBody UpdateCartItemDto cartItem) {
         return shoppingCartService.update(cartItem, cartItemId);
     }
 
-    @Operation(summary = "Delete Cart Item", description = "Remove an item from the shopping cart by its ID")
+    @Operation(summary = "Delete Cart Item",
+            description = "Remove an item from the shopping cart by its ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/cart-items/{cartItemId}")
     public void deleteCartItemById(@PathVariable Long cartItemId) {

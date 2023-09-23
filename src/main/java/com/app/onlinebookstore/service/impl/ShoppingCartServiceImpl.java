@@ -44,7 +44,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 .orElseGet(this::createShoppingCart);
         CartItem cartItem = shoppingCart.getCartItems().stream()
                 .filter(item -> item.getBook().getId().equals(createCartItemDto.getBookId()))
-                .peek(item -> item.setQuantity(createCartItemDto.getQuantity()))
+                .peek(item -> {
+                    item.setQuantity(createCartItemDto.getQuantity());
+                    item.setDeleted(false);
+                })
                 .findFirst().orElseGet(() -> createCartItem(createCartItemDto));
         return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }

@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String UNKNOWN_ERROR = "Something went wrong";
-    private static final Logger logger = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(CustomGlobalExceptionHandler.class);
 
     @Override
@@ -71,7 +71,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleAllErrors(Exception exception) {
-        logger.error("Internal server error: ", exception);
+        LOGGER.error("Internal server error: ", exception);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR);
