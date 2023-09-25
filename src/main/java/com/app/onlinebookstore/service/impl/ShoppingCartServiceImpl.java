@@ -68,6 +68,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cartItemRepository.deleteById(cartItemId);
     }
 
+    @Override
+    public void clearShoppingCart(ShoppingCart shoppingCart) {
+        cartItemRepository.deleteAll(shoppingCart.getCartItems());
+        shoppingCart.getCartItems().clear();
+        shoppingCartRepository.delete(shoppingCart);
+    }
+
     private CartItem createCartItem(CreateCartItemDto createCartItemDto) {
         CartItem cartItem = new CartItem();
         if (createCartItemDto.getBookId() != null) {
