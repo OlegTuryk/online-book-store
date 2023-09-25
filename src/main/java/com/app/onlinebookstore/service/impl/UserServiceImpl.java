@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
     public User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Can't find user with email: " + authentication.getName()));
     }
 }
