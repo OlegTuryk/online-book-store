@@ -11,7 +11,6 @@
     <groupId>com.app</groupId>
     <artifactId>online-book-store</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
     <name>online-book-store</name>
     <description>online-book-store</description>
     <properties>
@@ -50,9 +49,8 @@
             <version>8.0.33</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-docker-compose</artifactId>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
