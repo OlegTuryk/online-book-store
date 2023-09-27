@@ -60,6 +60,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
+    @Override
+    public void clearShoppingCart(ShoppingCart shoppingCart) {
+        cartItemRepository.deleteAll(shoppingCart.getCartItems());
+        shoppingCart.getCartItems().clear();
+        shoppingCartRepository.delete(shoppingCart);
+    }
+  
     @Transactional
     @Override
     public void deleteById(Long id) {

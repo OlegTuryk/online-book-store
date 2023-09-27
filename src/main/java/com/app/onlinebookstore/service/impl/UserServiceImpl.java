@@ -11,9 +11,7 @@ import com.app.onlinebookstore.repository.UserRepository;
 import com.app.onlinebookstore.service.UserService;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +39,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Can't find user with email: " + authentication.getName()));
+        return (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
