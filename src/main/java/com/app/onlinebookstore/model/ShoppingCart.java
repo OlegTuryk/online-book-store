@@ -29,7 +29,6 @@ public class ShoppingCart {
     private Long id;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    //@MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

@@ -55,17 +55,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     @Override
     public CartItemDto update(UpdateCartItemDto updateCartItemDto, Long id) {
-        CartItem cartItem = cartItemRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Can't find CartItem by id: " + id
-                ));
+        CartItem cartItem = findCartItemByIdAndUserId(id);
         cartItem.setQuantity(updateCartItemDto.getQuantity());
         return cartItemMapper.toDto(cartItemRepository.save(cartItem));
     }
 
+    @Transactional
     @Override
-    public void deleteById(Long cartItemId) {
-        cartItemRepository.deleteById(cartItemId);
+    public void deleteById(Long id) {
+        cartItemRepository.delete(findCartItemByIdAndUserId(id));
     }
 
     private CartItem createCartItem(CreateCartItemDto createCartItemDto) {
@@ -91,4 +89,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.save(newShoppingCart);
     }
 
+    private CartItem findCartItemByIdAndUserId(Long id) {
+        CartItem cartItem = cartItemRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find CartItem by id: " + id
+                ));
+        if (!cartItem.getShoppingCart().getUser().getId().equals(userService.getUser().getId())) {
+            throw new EntityNotFoundException("The cartItem with id: "
+                    + id + " doesn't belong to this user");
+        }
+        return cartItem;
+    }
 }
