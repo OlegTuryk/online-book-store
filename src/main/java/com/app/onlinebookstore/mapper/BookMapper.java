@@ -12,13 +12,16 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
 
 @Mapper(config = MapperConfig.class)
 public interface BookMapper {
+
+    @Mapping(target = "categoryIds", ignore = true)
     BookDto toDto(Book book);
 
     @Mapping(target = "categories", source = "categoryIds")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Book toModel(CreateBookRequestDto bookDto);
 
     BookDtoWithoutCategoryIds toDtoWithoutCategories(Book book);
@@ -30,16 +33,6 @@ public interface BookMapper {
                     .map(Category::getId)
                     .collect(Collectors.toSet()));
         }
-    }
-
-    @Named("bookFromId")
-    default Book bookFromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Book book = new Book();
-        book.setId(id);
-        return book;
     }
 
     default Set<Category> mapIdsToCategories(Set<Long> ids) {
