@@ -70,7 +70,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Object> handleAllErrors(Exception exception) {
+    public ResponseEntity<Object> handleUnknownRuntimeException(RuntimeException exception) {
         LOGGER.error("Internal server error: ", exception);
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
