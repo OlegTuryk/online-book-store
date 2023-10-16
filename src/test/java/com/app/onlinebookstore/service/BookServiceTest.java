@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +39,8 @@ public class BookServiceTest {
     private static BookDto bookDto;
     private static BookDtoWithoutCategoryIds bookDtoWithoutCategoryIds;
     private static final Long TEST_ID = 1L;
+    private static final int PAGE_NUMBER = 0;
+    private static final int PAGE_SIZE = 2;
     @Mock
     private BookRepository bookRepository;
     @Mock
@@ -85,10 +86,12 @@ public class BookServiceTest {
         createBookRequestDto.setAuthor("Test Author");
         createBookRequestDto.setIsbn("978-3-16-148410-0");
         createBookRequestDto.setPrice(new BigDecimal("19.99"));
+
         when(bookMapper.toModel(createBookRequestDto)).thenReturn(book);
         when(bookRepository.save(book)).thenReturn(book);
         when(bookMapper.toDto(book)).thenReturn(bookDto);
         BookDto actual = bookService.save(createBookRequestDto);
+
         assertNotNull(actual);
         assertEquals(bookDto, actual);
     }
@@ -96,11 +99,13 @@ public class BookServiceTest {
     @Test
     @DisplayName("Find all books")
     public void findAll_ReturnAllBooks() {
-        Pageable pageable = PageRequest.of(0, 2);
+        Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         List<Book> books = List.of(book);
+
         when(bookRepository.findAllWithCategories(pageable)).thenReturn(books);
         when(bookMapper.toDto(book)).thenReturn(bookDto);
         List<BookDto> actual = bookService.findAll(pageable);
+
         assertEquals(List.of(bookDto), actual);
     }
 
@@ -110,6 +115,7 @@ public class BookServiceTest {
         when(bookRepository.findByIdWithCategories(TEST_ID)).thenReturn(Optional.of(book));
         when(bookMapper.toDto(book)).thenReturn(bookDto);
         BookDto actual = bookService.getById(TEST_ID);
+
         assertNotNull(actual);
         assertEquals(bookDto, actual);
     }
@@ -118,8 +124,13 @@ public class BookServiceTest {
     @DisplayName("Get book by id - Book not found")
     public void getById_BookNotFound_ThrowEntityNotFoundException() {
         Long nonExistentId = 2L;
+
         when(bookRepository.findByIdWithCategories(nonExistentId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> bookService.getById(nonExistentId));
+
+        EntityNotFoundException exception =
+                assertThrows(EntityNotFoundException.class,
+                        () -> bookService.getById(nonExistentId));
+        assertEquals("Can't find book by id: " + nonExistentId, exception.getMessage());
     }
 
     @Test
@@ -127,7 +138,8 @@ public class BookServiceTest {
     public void deleteById_BookExists_DeleteSuccessfully() {
         doNothing().when(bookRepository).deleteById(TEST_ID);
         bookService.deleteById(TEST_ID);
-        verify(bookRepository, times(1)).deleteById(TEST_ID);
+
+        verify(bookRepository).deleteById(TEST_ID);
     }
 
     @Test
@@ -145,8 +157,8 @@ public class BookServiceTest {
         when(bookMapper.toModel(createBookRequestDto)).thenReturn(updatedBook);
         when(bookRepository.save(updatedBook)).thenReturn(updatedBook);
         when(bookMapper.toDto(updatedBook)).thenReturn(bookDto);
-
         BookDto actual = bookService.update(TEST_ID, createBookRequestDto);
+
         assertNotNull(actual);
         assertEquals(bookDto, actual);
     }
@@ -154,11 +166,11 @@ public class BookServiceTest {
     @Test
     @DisplayName("Find all books by category id")
     public void findAllByCategoryId_CategoryExists_ReturnBooks() {
-        Pageable pageable = PageRequest.of(1, 2);
+        Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         List<Book> books = List.of(book);
+
         when(bookRepository.findAllByCategoriesId(TEST_ID, pageable)).thenReturn(books);
         when(bookMapper.toDtoWithoutCategories(book)).thenReturn(bookDtoWithoutCategoryIds);
-
         List<BookDtoWithoutCategoryIds> actual = bookService.findAllByCategoryId(TEST_ID, pageable);
 
         assertEquals(List.of(bookDtoWithoutCategoryIds), actual);
@@ -168,15 +180,17 @@ public class BookServiceTest {
     @SuppressWarnings("unchecked")
     @DisplayName("Search books - Valid search parameters")
     public void search_ValidSearchParameters_ReturnBooks() {
-        Pageable pageable = PageRequest.of(1, 2);
+        Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         BookSearchParametersDto searchParameters = new BookSearchParametersDto();
         searchParameters.setTitle("Test Title");
         Page<Book> bookPage =
                 new PageImpl<>(List.of(book), pageable, 1);
+
         when(bookRepository.findAll(any(Specification.class),
                 any(Pageable.class))).thenReturn(bookPage);
         when(bookMapper.toDto(book)).thenReturn(bookDto);
         List<BookDto> actual = bookService.search(searchParameters, pageable);
+
         assertEquals(List.of(bookDto), actual);
     }
 }

@@ -28,13 +28,16 @@ import org.springframework.test.context.jdbc.Sql;
 public class BookRepositoryTest {
     private static final Book BOOK1 = new Book();
     private static final Book BOOK2 = new Book();
+    private static final Long VALID_ID = 1L;
+    private static final int PAGE_NUMBER = 0;
+    private static final int PAGE_SIZE = 2;
     @Autowired
     private BookRepository bookRepository;
 
     @BeforeAll
     public static void setUp() {
         Category testCategory1 = new Category();
-        testCategory1.setId(1L);
+        testCategory1.setId(VALID_ID);
         testCategory1.setName("Test Category 1");
         testCategory1.setDescription("Description for Test Category 1");
         Category testCategory2 = new Category();
@@ -42,7 +45,7 @@ public class BookRepositoryTest {
         testCategory2.setName("Test Category 2");
         testCategory2.setDescription("Description for Test Category 2");
 
-        BOOK1.setId(1L);
+        BOOK1.setId(VALID_ID);
         BOOK1.setTitle("Test Title1");
         BOOK1.setAuthor("Test Author1");
         BOOK1.setIsbn("978-3-16-148410-0");
@@ -73,17 +76,18 @@ public class BookRepositoryTest {
     @Test
     @DisplayName("Find all books with categories")
     public void findAllWithCategories_returnAllBooksWithCategories() {
-
-        Pageable pageable = PageRequest.of(0, 5);
+        Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         List<Book> books = bookRepository.findAllWithCategories(pageable);
+
         assertEquals(List.of(BOOK1, BOOK2), books);
     }
 
     @Test
     @DisplayName("Find all books by category id")
     public void findAllByCategoriesId_ValidCategoryId_ReturnBooks() {
-        Pageable pageable = PageRequest.of(0, 5);
-        List<Book> books = bookRepository.findAllByCategoriesId(1L, pageable);
+        Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
+        List<Book> books = bookRepository.findAllByCategoriesId(VALID_ID, pageable);
+
         assertEquals(List.of(BOOK1), books);
     }
 }

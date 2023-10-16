@@ -1,5 +1,7 @@
 package com.app.onlinebookstore.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -15,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,10 @@ public class CategoryControllerTest {
     private static final CategoryDto CATEGORY_DTO = new CategoryDto();
     private static final BookDtoWithoutCategoryIds BOOK_DTO_WITHOUT_CATEGORY_IDS
             = new BookDtoWithoutCategoryIds();
+    private static final String CATEGORY_ENDPOINT = "/categories";
+    private static final String ID_FOR_ENDPOINTS = "/1";
+    private static final String ID_TEXT = "id";
+    private static final String USER = "ADMIN";
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -69,13 +74,12 @@ public class CategoryControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "ADMIN", roles = {"ADMIN"})
+    @WithMockUser(username = USER, roles = {USER})
     @DisplayName("Create a new category")
     void createCategory_validRequestDto_returnCategoryDto() throws Exception {
         String jsonRequest = objectMapper.writeValueAsString(CREATE_CATEGORY_REQUEST_DTO);
-
         MvcResult result = mockMvc.perform(
-                post("/categories")
+                post(CATEGORY_ENDPOINT)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -83,14 +87,15 @@ public class CategoryControllerTest {
                 .andReturn();
         CategoryDto actual = objectMapper.readValue(result
                 .getResponse().getContentAsString(), CategoryDto.class);
-        Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getId());
-        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, "id"));
+
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, ID_TEXT));
     }
 
     @Test
     @DisplayName("Test getAll endpoint for category")
-    @WithMockUser(username = "admin")
+    @WithMockUser(username = USER)
     void getAll_validCategories_returnResponse() throws Exception {
         CategoryDto categoryDto = new CategoryDto();
         categoryDto.setId(2L);
@@ -99,74 +104,74 @@ public class CategoryControllerTest {
         List<CategoryDto> expected = List.of(CATEGORY_DTO, categoryDto);
 
         MvcResult result = mockMvc.perform(
-                        get("/categories")
+                        get(CATEGORY_ENDPOINT)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
         List<CategoryDto> actual = List.of(objectMapper.readValue(result
                 .getResponse().getContentAsString(), CategoryDto[].class));
-        Assertions.assertEquals(2, actual.size());
-        Assertions.assertEquals(expected, actual);
+
+        assertEquals(2, actual.size());
+        assertEquals(expected, actual);
     }
 
     @Test
     @DisplayName("Test get endpoint for category")
-    @WithMockUser(username = "admin")
+    @WithMockUser(username = USER)
     void getById_validCategory_returnResponse() throws Exception {
         MvcResult result = mockMvc.perform(
-                        get("/categories/1")
+                        get(CATEGORY_ENDPOINT + ID_FOR_ENDPOINTS)
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
         CategoryDto actual = objectMapper.readValue(result
                 .getResponse().getContentAsString(), CategoryDto.class);
-        Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getId());
-        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, "id"));
+
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, ID_TEXT));
     }
 
     @Test
-    @WithMockUser(username = "ADMIN", roles = {"ADMIN"})
+    @WithMockUser(username = USER, roles = {USER})
     @DisplayName("Delete category by valid id")
     void delete_validId_successful() throws Exception {
-        mockMvc.perform(delete("/categories/1"))
+        mockMvc.perform(delete(CATEGORY_ENDPOINT + ID_FOR_ENDPOINTS))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(username = "ADMIN", roles = {"ADMIN"})
+    @WithMockUser(username = USER, roles = {USER})
     @DisplayName("Update category by id")
     void update_validRequest_returnsExpectedCategory() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(put("/categories/1")
+        MvcResult mvcResult = mockMvc.perform(put(CATEGORY_ENDPOINT + ID_FOR_ENDPOINTS)
                         .content(objectMapper.writeValueAsString(CREATE_CATEGORY_REQUEST_DTO))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
-
         CategoryDto actual = objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(), CategoryDto.class);
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.getId());
-        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, "id"));
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        assertTrue(EqualsBuilder.reflectionEquals(CATEGORY_DTO, actual, ID_TEXT));
     }
 
-    @WithMockUser(username = "ADMIN")
+    @WithMockUser(username = USER)
     @Test
     @DisplayName("Get book by valid category id")
     void getBooksByCategoryId_validId_returnListOfBookDtoWithoutCategoryId() throws Exception {
-
         List<BookDtoWithoutCategoryIds> expected = List.of(BOOK_DTO_WITHOUT_CATEGORY_IDS);
-        MvcResult mvcResult = mockMvc.perform(get("/categories/1/books"))
+        MvcResult mvcResult = mockMvc.perform(get(CATEGORY_ENDPOINT + ID_FOR_ENDPOINTS + "/books"))
                 .andReturn();
 
         List<BookDtoWithoutCategoryIds> actual = List.of(objectMapper.readValue(
                 mvcResult.getResponse().getContentAsString(), BookDtoWithoutCategoryIds[].class));
 
-        Assertions.assertEquals(1, actual.size());
-        Assertions.assertEquals(expected, actual);
+        assertEquals(1, actual.size());
+        assertEquals(expected, actual);
     }
 }
