@@ -61,8 +61,8 @@ Users can access the documentation of the web application and the API on the off
 ## Prerequisites
 
 - [Java 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-- [Maven](https://maven.apache.org/download.cgi)
-- [MySQL database](https://www.mysql.com/downloads/)
+- [Maven(Not required if using Maven Wrapper)](https://maven.apache.org/download.cgi)
+- [MySQL database(Not required if running with Docker)](https://www.mysql.com/downloads/)
 - [Docker](https://docs.docker.com/get-docker/)
 
 
@@ -107,3 +107,5 @@ I had to document the API endpoints and errors for my web service. I also had to
 
 This project is a web application that allows users to browse and buy books online. It is built using the Spring Boot technologies. It uses technologies and tools, such as Spring Security, JWT, Spring Data JPA, Hibernate, Liquibase, and Swagger. The project demonstrates my skills and knowledge as a web developer, as well as my ability to overcome various challenges and learn new things. I hope you enjoy using this application and find it useful and fun. If you have any feedback, questions, or suggestions, please feel free to contact me. Thank you for your interest and support.
 
+The video instructions for usage you can watch here:
+[loom-video](https://www.loom.com/share/ff24d8ed07ed40c9957801b37251786c?sid=49ac1432-aaeb-480c-a048-3b915ea16472)
