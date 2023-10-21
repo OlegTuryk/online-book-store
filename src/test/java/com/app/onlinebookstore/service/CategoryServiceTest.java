@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +33,7 @@ public class CategoryServiceTest {
     private static Category category;
     private static CategoryDto categoryDto;
     private static final Long TEST_ID = 1L;
+    private static final String CATEGORY_NAME = "fiction";
     @Mock
     private CategoryRepository categoryRepository;
     @Mock
@@ -45,7 +45,7 @@ public class CategoryServiceTest {
     public static void setUp() {
         category = new Category();
         category.setId(TEST_ID);
-        category.setName("fiction");
+        category.setName(CATEGORY_NAME);
 
         categoryDto = new CategoryDto();
         categoryDto.setId(category.getId());
@@ -61,6 +61,7 @@ public class CategoryServiceTest {
         when(categoryRepository.findAll(pageable)).thenReturn(categoryPage);
         when(categoryMapper.toDto(category)).thenReturn(categoryDto);
         List<CategoryDto> actual = categoryService.findAll(pageable);
+
         assertEquals(List.of(categoryDto), actual);
     }
 
@@ -68,13 +69,13 @@ public class CategoryServiceTest {
     @DisplayName("Save category")
     public void save_ValidCategory_ReturnSavedCategoryDto() {
         CreateCategoryRequestDto createCategoryRequestDto = new CreateCategoryRequestDto();
-        createCategoryRequestDto.setName("fiction");
+        createCategoryRequestDto.setName(CATEGORY_NAME);
 
         when(categoryMapper.toEntity(createCategoryRequestDto)).thenReturn(category);
         when(categoryRepository.save(category)).thenReturn(category);
         when(categoryMapper.toDto(category)).thenReturn(categoryDto);
-
         CategoryDto actual = categoryService.save(createCategoryRequestDto);
+
         assertNotNull(actual);
         assertEquals(categoryDto, actual);
     }
@@ -83,16 +84,16 @@ public class CategoryServiceTest {
     @DisplayName("Update category")
     public void update_CategoryExists_ReturnUpdatedCategoryDto() {
         CreateCategoryRequestDto createCategoryRequestDto = new CreateCategoryRequestDto();
-        createCategoryRequestDto.setName("fiction");
+        createCategoryRequestDto.setName(CATEGORY_NAME);
         Category updatedCategory = new Category();
         updatedCategory.setId(TEST_ID);
-        updatedCategory.setName("fiction");
+        updatedCategory.setName(CATEGORY_NAME);
 
         when(categoryMapper.toEntity(createCategoryRequestDto)).thenReturn(updatedCategory);
         when(categoryRepository.save(updatedCategory)).thenReturn(updatedCategory);
         when(categoryMapper.toDto(updatedCategory)).thenReturn(categoryDto);
-
         CategoryDto actual = categoryService.update(TEST_ID, createCategoryRequestDto);
+
         assertNotNull(actual);
         assertEquals(categoryDto, actual);
     }
@@ -103,6 +104,7 @@ public class CategoryServiceTest {
         when(categoryRepository.findById(TEST_ID)).thenReturn(Optional.of(category));
         when(categoryMapper.toDto(category)).thenReturn(categoryDto);
         CategoryDto actual = categoryService.getById(TEST_ID);
+
         assertNotNull(actual);
         assertEquals(categoryDto, actual);
     }
@@ -112,16 +114,20 @@ public class CategoryServiceTest {
     public void deleteById_CategoryExists_DeleteSuccessfully() {
         doNothing().when(categoryRepository).deleteById(TEST_ID);
         categoryService.deleteById(TEST_ID);
-        verify(categoryRepository, times(1)).deleteById(TEST_ID);
+
+        verify(categoryRepository).deleteById(TEST_ID);
     }
 
     @Test
     @DisplayName("Get category by id - Category not found")
     public void getById_CategoryNotFound_ThrowEntityNotFoundException() {
         Long nonExistentId = 2L;
+
         when(categoryRepository.findById(nonExistentId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> {
-            categoryService.getById(nonExistentId);
-        });
+
+        EntityNotFoundException exception =
+                assertThrows(EntityNotFoundException.class,
+                        () -> categoryService.getById(nonExistentId));
+        assertEquals("Can't find category by id: " + nonExistentId, exception.getMessage());
     }
 }
