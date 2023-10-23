@@ -2,6 +2,7 @@ package com.app.onlinebookstore.service.impl;
 
 import com.app.onlinebookstore.dto.user.UserRegistrationRequestDto;
 import com.app.onlinebookstore.dto.user.UserResponseDto;
+import com.app.onlinebookstore.exception.EntityNotFoundException;
 import com.app.onlinebookstore.exception.RegistrationException;
 import com.app.onlinebookstore.mapper.UserMapper;
 import com.app.onlinebookstore.model.Role;
@@ -39,6 +40,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser() {
-        return (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(username).orElseThrow(
+                () -> new EntityNotFoundException("Can't find user by username: "
+                        + username));
     }
 }
